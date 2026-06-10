@@ -135,4 +135,8 @@ The frontend is deployed by uploading the contents of `frontend/` to the S3 buck
 
 ## Screenshots
 
-_Add screenshots of the redesigned UI here (landing, login, and the task dashboard)._
+### Task Dashboard
+![CloudTask dashboard — dark UI with task list, filters, and live progress counter](screenshots/dashboard.png)
+
+### Landing Page
+![CloudTask landing page](screenshots/landing.png)
