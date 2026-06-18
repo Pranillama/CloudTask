@@ -69,13 +69,13 @@ class API {
         }
     }
 
-    // Update a task (toggle completion status)
-    async updateTask(taskId, completed) {
+    // Update a task. `fields` may contain `completed` and/or `title`.
+    async updateTask(taskId, fields) {
         try {
             const response = await fetch(`${this.baseURL}/tasks/${taskId}`, {
                 method: 'PUT',
                 headers: this.getAuthHeaders(),
-                body: JSON.stringify({ completed })
+                body: JSON.stringify(fields)
             });
 
             return await this.handleResponse(response);

@@ -248,8 +248,8 @@ class CloudTaskApp {
         this.showLoading();
 
         try {
-            await api.updateTask(taskId, completed);
-            
+            await api.updateTask(taskId, { completed });
+
             // Update local task
             const task = this.tasks.find(t => t.taskId === taskId);
             if (task) {
@@ -260,6 +260,29 @@ class CloudTaskApp {
             alert('Error updating task: ' + error.message);
             // Revert the change
             this.renderTasks();
+        } finally {
+            this.hideLoading();
+        }
+    }
+
+    async handleEditTask(taskId) {
+        const task = this.tasks.find(t => t.taskId === taskId);
+        if (!task) return;
+
+        const input = prompt('Edit task:', task.title);
+        if (input === null) return; // Cancelled
+
+        const title = input.trim();
+        if (!title || title === task.title) return; // Empty or unchanged
+
+        this.showLoading();
+
+        try {
+            await api.updateTask(taskId, { title });
+            task.title = title;
+            this.renderTasks();
+        } catch (error) {
+            alert('Error updating task: ' + error.message);
         } finally {
             this.hideLoading();
         }
@@ -355,8 +378,14 @@ class CloudTaskApp {
                     >
                     <span class="task-content">${this.escapeHtml(task.title)}</span>
                     <span class="task-date">${formattedDate}</span>
-                    <button 
-                        class="btn btn-danger" 
+                    <button
+                        class="btn btn-edit"
+                        onclick="app.handleEditTask('${task.taskId}')"
+                    >
+                        Edit
+                    </button>
+                    <button
+                        class="btn btn-danger"
                         onclick="app.handleDeleteTask('${task.taskId}')"
                     >
                         Delete

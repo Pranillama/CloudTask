@@ -39,6 +39,8 @@ I initially took the **AWS Cloud Practitioner Essential** course and built this 
 
 **Request flow:** The static frontend is served from an S3 origin and distributed globally through an Amazon CloudFront CDN, so users load the app from a low-latency edge location near them. The frontend authenticates the user against a Cognito User Pool and receives a JWT. Every task API request carries that token to API Gateway, where a Cognito authorizer validates it and injects the user's `sub` (user ID) into the request. The Lambda functions use that `sub` to scope all DynamoDB reads/writes to the logged-in user.
 
+**Scheduled reminder (out of band):** An Amazon EventBridge schedule invokes a `DailyReminder` Lambda once a day. It scans DynamoDB for incomplete tasks and publishes a summary to an Amazon SNS topic, which emails the subscribed address. Setup steps are in [`docs/sns-reminder-setup.md`](docs/sns-reminder-setup.md).
+
 ---
 
 ## AWS Services Used
@@ -51,6 +53,8 @@ I initially took the **AWS Cloud Practitioner Essential** course and built this 
 | **Amazon API Gateway** | REST API with a Cognito authorizer protecting every route |
 | **AWS Lambda** | Four Python functions implementing the task CRUD logic |
 | **Amazon DynamoDB** | Stores tasks, partitioned per user (`userId` + `taskId`) |
+| **Amazon SNS** | Sends the daily pending-tasks reminder email |
+| **Amazon EventBridge** | Schedules the daily reminder Lambda |
 | **IAM** | Scoped execution roles/policies (see [`docs/`](docs/)) |
 
 ---
@@ -59,9 +63,10 @@ I initially took the **AWS Cloud Practitioner Essential** course and built this 
 
 - 🔐 **Secure auth** — email/password sign-up with email verification via Cognito
 - 👤 **Per-user data isolation** — every task is keyed to the authenticated user's ID
-- ✅ **Full task CRUD** — add, complete, and delete tasks
+- ✅ **Full task CRUD** — add, edit, complete, and delete tasks
 - 🔎 **Filters** — view All / Active / Completed tasks
 - 📊 **Live progress** — an "X of Y done" counter that updates as you work
+- 📧 **Daily email reminder** — a scheduled SNS email summarizing pending tasks (see [`docs/sns-reminder-setup.md`](docs/sns-reminder-setup.md))
 
 ---
 
@@ -73,7 +78,7 @@ All routes require a valid Cognito JWT (`Authorization: Bearer <token>`).
 |---|---|---|---|
 | `GET` | `/tasks` | `get_tasks` | List the current user's tasks |
 | `POST` | `/tasks` | `create_task` | Create a new task |
-| `PUT` | `/tasks/{taskId}` | `update_task` | Toggle a task's completed state |
+| `PUT` | `/tasks/{taskId}` | `update_task` | Update a task's title and/or completed state |
 | `DELETE` | `/tasks/{taskId}` | `delete_task` | Delete a task |
 
 ---
@@ -93,9 +98,12 @@ All routes require a valid Cognito JWT (`Authorization: Bearer <token>`).
 │   ├── create_task.py
 │   ├── get_tasks.py
 │   ├── update_task.py
-│   └── delete_task.py
-└── docs/                     # IAM policies & bucket policy reference
+│   ├── delete_task.py
+│   └── daily_reminder.py     # Scheduled SNS pending-tasks email
+└── docs/                     # IAM policies, bucket policy & setup guides
     ├── lambda-execution-policy.json
+    ├── daily-reminder-execution-policy.json
+    ├── sns-reminder-setup.md
     └── s3-bucket-policy.json
 ```
 

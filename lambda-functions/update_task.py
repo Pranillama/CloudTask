@@ -17,21 +17,51 @@ def lambda_handler(event, context):
         
         # Get task ID from path parameters
         task_id = event['pathParameters']['taskId']
-        
+
         # Parse request body
         body = json.loads(event['body'])
-        completed = body.get('completed', False)
-        
+
+        # Build the update dynamically from whichever fields are provided.
+        # Supports toggling completion and/or renaming the task title.
+        # Use attribute-name placeholders since 'completed'/'title' can collide
+        # with DynamoDB reserved words.
+        update_parts = []
+        expr_names = {}
+        expr_values = {}
+
+        if 'completed' in body:
+            update_parts.append('#completed = :completed')
+            expr_names['#completed'] = 'completed'
+            expr_values[':completed'] = bool(body['completed'])
+
+        if 'title' in body:
+            title = body.get('title', '').strip()
+            if not title:
+                return {
+                    'statusCode': 400,
+                    'headers': get_cors_headers(),
+                    'body': json.dumps({'error': 'Task title cannot be empty'})
+                }
+            update_parts.append('#title = :title')
+            expr_names['#title'] = 'title'
+            expr_values[':title'] = title
+
+        if not update_parts:
+            return {
+                'statusCode': 400,
+                'headers': get_cors_headers(),
+                'body': json.dumps({'error': 'No updatable fields provided'})
+            }
+
         # Update task in DynamoDB
         response = table.update_item(
             Key={
                 'userId': user_id,
                 'taskId': task_id
             },
-            UpdateExpression='SET completed = :completed',
-            ExpressionAttributeValues={
-                ':completed': completed
-            },
+            UpdateExpression='SET ' + ', '.join(update_parts),
+            ExpressionAttributeNames=expr_names,
+            ExpressionAttributeValues=expr_values,
             ReturnValues='ALL_NEW'
         )
         
