@@ -61,12 +61,12 @@ I initially took the **AWS Cloud Practitioner Essential** course and built this 
 
 ## Features
 
-- 🔐 **Secure auth** — email/password sign-up with email verification via Cognito
-- 👤 **Per-user data isolation** — every task is keyed to the authenticated user's ID
-- ✅ **Full task CRUD** — add, edit, complete, and delete tasks
-- 🔎 **Filters** — view All / Active / Completed tasks
-- 📊 **Live progress** — an "X of Y done" counter that updates as you work
-- 📧 **Daily email reminder** — a scheduled SNS email summarizing pending tasks (see [`docs/sns-reminder-setup.md`](docs/sns-reminder-setup.md))
+- **Secure auth** — email/password sign-up with email verification via Cognito
+- **Per-user data isolation** — every task is keyed to the authenticated user's ID
+- **Full task CRUD** — add, edit, complete, and delete tasks
+- **Filters** — view All / Active / Completed tasks
+- **Live progress** — an "X of Y done" counter that updates as you work
+- **Daily email reminder** — a scheduled SNS email summarizing pending tasks (see [`docs/sns-reminder-setup.md`](docs/sns-reminder-setup.md))
 
 ---
 
@@ -148,3 +148,6 @@ The frontend is deployed by uploading the contents of `frontend/` to the S3 buck
 
 ### Landing Page
 ![CloudTask landing page](screenshots/landing.png)
+
+### Email eg
+![CloudTask email](screenshots/email.png)
