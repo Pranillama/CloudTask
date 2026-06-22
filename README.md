@@ -6,6 +6,12 @@ I initially took the **AWS Cloud Practitioner Essential** course and built this 
 
 ---
 
+## Video Walkthrough
+
+[![Watch on YouTube](https://img.shields.io/badge/YouTube-Watch%20Video-red?logo=youtube)](https://www.youtube.com/watch?v=mOkT4LZ2YeE)
+
+---
+
 ## Architecture
 
 ```
